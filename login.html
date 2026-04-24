@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantry Manager - Iniciar Sesión</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center">
+    <div class="container mx-auto px-4">
+        <div class="max-w-md w-full bg-white rounded-lg shadow-xl p-8 card-hover">
+            <div class="text-center mb-8">
+                <i class="fas fa-warehouse text-4xl text-purple-600 mb-4"></i>
+                <h1 class="text-3xl font-bold text-gray-800">Pantry Manager</h1>
+                <p class="text-gray-600 mt-2">Gestión Inteligente de Despensa</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <div class="relative">
+                        <input type="email" id="email" required
+                               class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               placeholder="tu@email.com">
+                        <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                    <div class="relative">
+                        <input type="password" id="password" required
+                               class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               placeholder="•••••">
+                        <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                        <span class="ml-2 text-sm text-gray-600">Recordarme</span>
+                    </label>
+                    <a href="#" class="text-sm text-purple-600 hover:text-purple-500">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" id="loginBtn"
+                        class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-700 hover:to-purple-800 transition duration-300">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">¿No tienes cuenta? 
+                    <a href="#" onclick="showRegister()" class="text-purple-600 hover:text-purple-500 font-semibold">Regístrate</a>
+                </p>
+            </div>
+
+            <!-- Demo Accounts -->
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Cuentas de Demo:</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Admin:</span>
+                        <button onclick="fillDemo('admin@ejemplo.com', 'admin123')" 
+                                class="text-purple-600 hover:text-purple-500">Usar</button>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Usuario:</span>
+                        <button onclick="fillDemo('juan@ejemplo.com', 'password123')" 
+                                class="text-purple-600 hover:text-purple-500">Usar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg p-6 text-center">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p>Iniciando sesión...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert -->
+    <div id="alert" class="fixed top-4 right-4 hidden z-50">
+        <div class="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span id="alertMessage">Error</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Credenciales de demo
+        const demoAccounts = {
+            admin: { email: 'admin@ejemplo.com', password: 'admin123', is_admin: true },
+            user: { email: 'juan@ejemplo.com', password: 'password123', is_admin: false }
+        };
+
+        // Llenar formulario con credenciales de demo
+        function fillDemo(email, password) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+        }
+
+        // Mostrar alerta
+        function showAlert(message, type = 'error') {
+            const alertDiv = document.getElementById('alert');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            alertMessage.textContent = message;
+            alertDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                alertDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Mostrar/ocultar loading
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        // Procesar login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showAlert('Por favor, completa todos los campos');
+                return;
+            }
+
+            showLoading();
+
+            // Simular autenticación (en producción, esto sería una llamada a API)
+            setTimeout(() => {
+                // Verificar credenciales de demo
+                let user = null;
+                
+                if (email === demoAccounts.admin.email && password === demoAccounts.admin.password) {
+                    user = demoAccounts.admin;
+                } else if (email === demoAccounts.user.email && password === demoAccounts.user.password) {
+                    user = demoAccounts.user;
+                }
+
+                hideLoading();
+
+                if (user) {
+                    // Guardar sesión
+                    sessionStorage.setItem('user', JSON.stringify(user));
+                    
+                    // Redirigir según el rol
+                    if (user.is_admin) {
+                        window.location.href = '/admin_dashboard.html';
+                    } else {
+                        window.location.href = '/app.html';
+                    }
+                } else {
+                    showAlert('Email o contraseña incorrectos');
+                }
+            }, 1000);
+        });
+
+        // Función de registro (placeholder)
+        function showRegister() {
+            alert('Función de registro próximamente disponible');
+        }
+    </script>
+</body>
+</html>

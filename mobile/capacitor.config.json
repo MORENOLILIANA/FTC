@@ -1,0 +1,8 @@
+{
+  "appId": "com.miguel.tfg.pantrymanager",
+  "appName": "Pantry Manager",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

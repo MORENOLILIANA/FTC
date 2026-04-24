@@ -1,0 +1,22 @@
+{
+  "name": "pantry-manager-mobile",
+  "version": "1.0.0",
+  "description": "Android wrapper for Pantry Manager",
+  "main": "index.js",
+  "scripts": {
+    "sync:web": "node scripts/sync-web.js",
+    "cap:add:android": "npm run sync:web && npx cap add android",
+    "cap:sync": "npm run sync:web && npx cap sync",
+    "android:open": "npx cap open android",
+    "android:run": "npm run cap:sync && npx cap run android"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/cli": "^8.3.1",
+    "@capacitor/core": "^8.3.1"
+  }
+}
