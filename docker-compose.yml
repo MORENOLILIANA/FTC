@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: nutricasa_app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www
+    networks:
+      - nutricasa_network
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:alpine
+    container_name: nutricasa_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - nutricasa_network
+    depends_on:
+      - app
+
+  db:
+    image: mysql:5.7
+    container_name: nutricasa_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: nutricasa
+      MYSQL_USER: nutricasa_user
+      MYSQL_PASSWORD: nutricasa2024
+      MYSQL_ROOT_PASSWORD: root2024
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - nutricasa_network
+
+  adminer:
+    image: adminer:latest
+    container_name: nutricasa_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - nutricasa_network
+    depends_on:
+      - db
+
+networks:
+  nutricasa_network:
+    driver: bridge
+
+volumes:
+  dbdata:

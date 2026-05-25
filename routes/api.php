@@ -41,11 +41,14 @@ Route::prefix('v1')->group(function () {
         // Rutas de productos
         Route::prefix('products')->group(function () {
             Route::get('/', [ProductController::class, 'index']);
+            Route::post('/', [ProductController::class, 'store']);
             Route::get('/search', [ProductController::class, 'search']);
             Route::get('/barcode/{barcode}', [ProductController::class, 'getByBarcode']);
             Route::get('/barcode/{barcode}/nutritional', [ProductController::class, 'nutritionalInfo']);
             Route::get('/barcode/{barcode}/suggestions', [ProductController::class, 'suggestions']);
             Route::get('/{id}', [ProductController::class, 'show']);
+            Route::put('/{id}', [ProductController::class, 'update']);
+            Route::delete('/{id}', [ProductController::class, 'destroy']);
         });
 
         // Rutas de despensas
@@ -53,6 +56,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [PantryController::class, 'index']);
             Route::post('/', [PantryController::class, 'store']);
             Route::get('/{id}', [PantryController::class, 'show']);
+            Route::put('/{id}', [PantryController::class, 'update']);
+            Route::delete('/{id}', [PantryController::class, 'destroy']);
             Route::post('/{id}/items', [PantryController::class, 'addItem']);
             Route::put('/{id}/items/{itemId}', [PantryController::class, 'updateItem']);
             Route::delete('/{id}/items/{itemId}', [PantryController::class, 'deleteItem']);
@@ -66,6 +71,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [ShoppingListController::class, 'index']);
             Route::post('/', [ShoppingListController::class, 'store']);
             Route::get('/{id}', [ShoppingListController::class, 'show']);
+            Route::put('/{id}', [ShoppingListController::class, 'update']);
+            Route::delete('/{id}', [ShoppingListController::class, 'destroy']);
             Route::post('/{id}/items', [ShoppingListController::class, 'addItem']);
             Route::put('/{id}/items/{itemId}/purchased', [ShoppingListController::class, 'markItemPurchased']);
             Route::put('/{id}/items/{itemId}/unpurchased', [ShoppingListController::class, 'unmarkItemPurchased']);

@@ -77,9 +77,9 @@ class PantryItem extends Model
     }
 
     /**
-     * Obtener días hasta la caducidad
+     * Obtener días hasta la caducidad (también accesible como $item->days_until_expiry)
      */
-    public function getDaysUntilExpiry(): int
+    public function getDaysUntilExpiryAttribute(): int
     {
         if (!$this->expiry_date) {
             return -1;

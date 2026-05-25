@@ -15,21 +15,21 @@ class ShoppingList extends Model
         'user_id',
         'is_shared',
         'shared_token',
-        'status'
+        'status',
+        'completed_at'
     ];
 
     protected $casts = [
         'is_shared' => 'boolean',
+        'completed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
 
-    /**
-     * Estados posibles de la lista
-     */
     const STATUS_ACTIVE = 'active';
     const STATUS_COMPLETED = 'completed';
     const STATUS_CANCELLED = 'cancelled';
+    const STATUS_ARCHIVED = 'archived';
 
     /**
      * Relación con el usuario dueño
@@ -135,6 +135,7 @@ class ShoppingList extends Model
     public function markAsCompleted()
     {
         $this->status = self::STATUS_COMPLETED;
+        $this->completed_at = now();
         $this->save();
     }
 

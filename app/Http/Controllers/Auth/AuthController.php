@@ -150,7 +150,8 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required',
-            'password' => 'required|string|min:8|confirmed',
+            'new_password' => 'required|string|min:8|confirmed',
+            'new_password_confirmation' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -171,7 +172,7 @@ class AuthController extends Controller
         }
 
         $user->update([
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->new_password)
         ]);
 
         return response()->json([

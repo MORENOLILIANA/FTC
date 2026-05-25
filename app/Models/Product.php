@@ -31,6 +31,8 @@ class Product extends Model
         'open_food_facts_data'
     ];
 
+    protected $appends = ['ean'];
+
     protected $casts = [
         'calories_per_100g' => 'decimal:2',
         'proteins_per_100g' => 'decimal:2',
@@ -44,6 +46,14 @@ class Product extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
+
+    /**
+     * EAN es alias de barcode para compatibilidad con la app móvil
+     */
+    public function getEanAttribute(): ?string
+    {
+        return $this->barcode;
+    }
 
     /**
      * Relación con los items de despensa

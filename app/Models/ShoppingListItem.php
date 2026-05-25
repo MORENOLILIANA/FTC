@@ -12,6 +12,7 @@ class ShoppingListItem extends Model
     protected $fillable = [
         'shopping_list_id',
         'product_id',
+        'name',
         'quantity',
         'unit',
         'estimated_price',
