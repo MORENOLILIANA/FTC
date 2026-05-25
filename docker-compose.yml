@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build: .
@@ -7,10 +5,15 @@ services:
     restart: unless-stopped
     volumes:
       - .:/var/www
+      - /var/www/vendor
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
     networks:
       - nutricasa_network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   nginx:
     image: nginx:alpine
@@ -27,7 +30,7 @@ services:
       - app
 
   db:
-    image: mysql:5.7
+    image: mysql:8.0
     container_name: nutricasa_db
     restart: unless-stopped
     environment:
@@ -41,6 +44,12 @@ services:
       - dbdata:/var/lib/mysql
     networks:
       - nutricasa_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot2024"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   adminer:
     image: adminer:latest
@@ -51,7 +60,8 @@ services:
     networks:
       - nutricasa_network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 networks:
   nutricasa_network:

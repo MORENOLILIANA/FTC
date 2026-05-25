@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Pantry;
+use App\Models\PantryItem;
 use App\Models\ShoppingList;
 use App\Models\ShoppingListItem;
 use App\Models\User;
@@ -155,6 +157,44 @@ class ShoppingListService
 
         $list->markAsCompleted();
         return $list->fresh();
+    }
+
+    public function moveToPantry(int $listId, int $pantryId, User $user): array
+    {
+        $list   = ShoppingList::with(['items.product'])->findOrFail($listId);
+        $pantry = Pantry::findOrFail($pantryId);
+
+        if (!$list->hasUserPermission($user, 'write')) {
+            abort(403, 'Access denied to shopping list');
+        }
+
+        if (!$pantry->hasUserPermission($user, 'write')) {
+            abort(403, 'Access denied to pantry');
+        }
+
+        $moved = [];
+
+        foreach ($list->items()->where('is_purchased', true)->with('product')->get() as $item) {
+            if (!$item->product_id) {
+                continue;
+            }
+
+            $existing = $pantry->items()->where('product_id', $item->product_id)->first();
+
+            if ($existing) {
+                $existing->increment('quantity', $item->quantity);
+                $moved[] = $existing->fresh();
+            } else {
+                $moved[] = PantryItem::create([
+                    'pantry_id'  => $pantryId,
+                    'product_id' => $item->product_id,
+                    'quantity'   => $item->quantity,
+                    'unit'       => $item->unit,
+                ]);
+            }
+        }
+
+        return $moved;
     }
 
     public function formatItem(ShoppingListItem $item): array

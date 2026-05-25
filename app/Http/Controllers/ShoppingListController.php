@@ -182,6 +182,25 @@ class ShoppingListController extends Controller
         }
     }
 
+    public function moveToPantry(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'pantry_id' => 'required|integer|exists:pantries,id',
+        ]);
+
+        try {
+            $moved = $this->listService->moveToPantry($id, $request->integer('pantry_id'), $request->user());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Purchased items moved to pantry successfully',
+                'data'    => ['moved_items' => count($moved)],
+            ]);
+        } catch (\Exception $e) {
+            return $this->error($e);
+        }
+    }
+
     public function complete(Request $request, int $id): JsonResponse
     {
         try {
