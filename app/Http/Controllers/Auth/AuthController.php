@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Mail\ResetPasswordMail;
 
 class AuthController extends Controller
 {
@@ -200,25 +202,63 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Always return success to avoid email enumeration
         $user = User::where('email', $request->email)->first();
 
-        if ($user) {
-            $token = Str::random(64);
-
-            DB::table('password_reset_tokens')->updateOrInsert(
-                ['email' => $request->email],
-                ['token' => Hash::make($token), 'created_at' => now()]
-            );
-
-            // In production, dispatch a mail job here.
-            // Mail::to($request->email)->send(new ResetPasswordMail($token));
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No existe ninguna cuenta con ese correo electrónico.',
+            ], 404);
         }
+
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            ['token' => Hash::make($token), 'created_at' => now()]
+        );
+
+        Mail::to($request->email)->send(new ResetPasswordMail($token, $request->email));
 
         return response()->json([
             'success' => true,
-            'message' => 'If this email exists, a password reset link has been sent.',
+            'message' => 'Te hemos enviado un correo para restablecer tu contraseña.',
         ]);
+    }
+
+    /**
+     * Restablecer contraseña con token
+     */
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email'                 => 'required|email',
+            'token'                 => 'required|string',
+            'password'              => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $validator->errors()], 422);
+        }
+
+        $record = DB::table('password_reset_tokens')->where('email', $request->email)->first();
+
+        if (!$record || !Hash::check($request->token, $record->token)) {
+            return response()->json(['success' => false, 'message' => 'Token inválido o expirado'], 422);
+        }
+
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return response()->json(['success' => false, 'message' => 'El token ha expirado. Solicita uno nuevo.'], 422);
+        }
+
+        $user = User::where('email', $request->email)->firstOrFail();
+        $user->update(['password' => Hash::make($request->password)]);
+
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return response()->json(['success' => true, 'message' => 'Contraseña restablecida correctamente']);
     }
 
     /**
