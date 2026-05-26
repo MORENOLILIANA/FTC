@@ -123,6 +123,20 @@ class Product extends Model
     }
 
     /**
+     * Crear producto desde datos de UPC Item DB (sin info nutricional)
+     */
+    public static function createFromUpcItemDb(array $data): self
+    {
+        $product = new static();
+        $product->barcode    = $data['code'];
+        $product->name       = $data['product_name'] ?? 'Producto sin nombre';
+        $product->brand      = $data['brands'] ?? null;
+        $product->category   = $data['category'] ?? null;
+        $product->image_url  = $data['image_front_url'] ?? null;
+        return $product;
+    }
+
+    /**
      * Crear producto desde datos de Open Food Facts
      */
     public static function createFromOpenFoodFacts(array $data): self
@@ -147,10 +161,11 @@ class Product extends Model
         
         $product->ingredients = $data['ingredients_text'] ?? null;
         $product->allergens = $data['allergens'] ?? null;
-        $product->nutriscore = $data['nutrition_grade_fr'] ?? null;
+        $nutriscore = $data['nutrition_grade_fr'] ?? null;
+        $product->nutriscore = in_array($nutriscore, ['a', 'b', 'c', 'd', 'e']) ? $nutriscore : null;
         $product->image_url = $data['image_front_url'] ?? null;
         $product->open_food_facts_data = $data;
-        
+
         return $product;
     }
 }

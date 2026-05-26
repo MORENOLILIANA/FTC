@@ -116,7 +116,12 @@ class ProductController extends Controller
             $product = $this->productService->getByBarcodeOrFetch($barcode);
 
             if (!$product) {
-                return response()->json(['success' => false, 'message' => 'Product not found'], 404);
+                return response()->json([
+                    'success'            => false,
+                    'message'            => 'Producto no encontrado en ninguna base de datos',
+                    'needs_manual_entry' => true,
+                    'barcode'            => $barcode,
+                ], 404);
             }
 
             return response()->json([

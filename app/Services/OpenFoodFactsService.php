@@ -79,13 +79,14 @@ class OpenFoodFactsService
     public function createOrUpdateProduct(string $barcode): ?Product
     {
         $productData = $this->getProductByBarcode($barcode);
-        
+
         if (!$productData) {
             return null;
         }
 
-        // Verificar si el producto ya existe
-        $product = Product::where('barcode', $barcode)->first();
+        // Buscar por el barcode enviado O por el código que devuelve la API (pueden diferir en ceros iniciales)
+        $apiCode = $productData['code'] ?? $barcode;
+        $product = Product::whereIn('barcode', array_unique([$barcode, $apiCode]))->first();
 
         if ($product) {
             // Actualizar producto existente
@@ -131,7 +132,8 @@ class OpenFoodFactsService
         
         $product->ingredients = $data['ingredients_text'] ?? $product->ingredients;
         $product->allergens = $data['allergens'] ?? $product->allergens;
-        $product->nutriscore = $data['nutrition_grade_fr'] ?? $product->nutriscore;
+        $nutriscore = $data['nutrition_grade_fr'] ?? null;
+        $product->nutriscore = in_array($nutriscore, ['a', 'b', 'c', 'd', 'e']) ? $nutriscore : $product->nutriscore;
         $product->image_url = $data['image_front_url'] ?? $product->image_url;
         $product->open_food_facts_data = $data;
         

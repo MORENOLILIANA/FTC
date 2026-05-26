@@ -4,10 +4,14 @@ namespace App\Services;
 
 use App\Models\Product;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
-    public function __construct(private OpenFoodFactsService $openFoodFacts) {}
+    public function __construct(
+        private OpenFoodFactsService $openFoodFacts,
+        private UpcItemDbService $upcItemDb,
+    ) {}
 
     public function getAll(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
@@ -32,12 +36,30 @@ class ProductService
     {
         $normalized = $this->openFoodFacts->normalizeBarcode($barcode);
 
+        // 1. Base de datos local
         $product = Product::where('barcode', $normalized)->first();
         if ($product) {
+            Log::info("Barcode {$normalized} found in local DB");
             return $product;
         }
 
-        return $this->openFoodFacts->createOrUpdateProduct($normalized);
+        // 2. Open Food Facts
+        $product = $this->openFoodFacts->createOrUpdateProduct($normalized);
+        if ($product) {
+            Log::info("Barcode {$normalized} found in Open Food Facts");
+            return $product;
+        }
+
+        // 3. UPC Item DB (fallback, sin datos nutricionales)
+        $upcData = $this->upcItemDb->getProductByBarcode($normalized);
+        if ($upcData) {
+            Log::info("Barcode {$normalized} found in UPC Item DB");
+            $product = Product::createFromUpcItemDb($upcData);
+            $product->save();
+            return $product;
+        }
+
+        return null;
     }
 
     public function getSuggestions(string $barcode): array

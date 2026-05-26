@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class PantryService
 {
+    public function __construct(private ProductService $productService) {}
     public function getUserPantries(User $user): Collection
     {
         $own    = $user->pantries()->with('items')->get();
@@ -82,6 +83,13 @@ class PantryService
 
         $productId = $data['product_id'] ?? null;
 
+        // Buscar por barcode usando la cadena Open Food Facts → UPC Item DB → BD local
+        if (!$productId && !empty($data['barcode'])) {
+            $product   = $this->productService->getByBarcodeOrFetch($data['barcode']);
+            $productId = $product?->id;
+        }
+
+        // Crear producto manualmente si no hay barcode ni product_id
         if (!$productId && isset($data['product_name'])) {
             $product   = Product::firstOrCreate(
                 ['name' => $data['product_name'], 'brand' => $data['product_brand'] ?? null],
@@ -91,7 +99,7 @@ class PantryService
         }
 
         if (!$productId) {
-            abort(422, 'product_id or product_name is required');
+            abort(422, 'Se requiere product_id, barcode o product_name');
         }
 
         $existing = $pantry->items()->where('product_id', $productId)->first();

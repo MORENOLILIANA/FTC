@@ -110,6 +110,7 @@ class PantryController extends Controller
     {
         $request->validate([
             'product_id'       => 'nullable|exists:products,id',
+            'barcode'          => 'nullable|string|max:14',
             'product_name'     => 'nullable|string|max:255',
             'product_brand'    => 'nullable|string|max:255',
             'product_category' => 'nullable|string|max:255',
