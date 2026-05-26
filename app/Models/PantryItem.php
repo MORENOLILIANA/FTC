@@ -24,8 +24,8 @@ class PantryItem extends Model
 
     protected $casts = [
         'expiry_date' => 'date',
-        'quantity' => 'decimal:2',
-        'minimum_quantity' => 'decimal:2',
+        'quantity' => 'float',
+        'minimum_quantity' => 'float',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
