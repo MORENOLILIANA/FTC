@@ -262,7 +262,7 @@ class PantryController extends Controller
                 return response()->json(['success' => false, 'message' => 'Already a member'], 400);
             }
 
-            $pantry->sharedUsers()->attach($user->id, ['permission' => 'read']);
+            $pantry->sharedUsers()->attach($user->id, ['permission' => 'write']);
 
             return response()->json(['success' => true, 'message' => 'Joined pantry successfully', 'data' => $pantry]);
         } catch (\Exception $e) {

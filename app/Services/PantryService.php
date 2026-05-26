@@ -26,7 +26,7 @@ class PantryService
 
     public function findForUser(int $id, User $user): Pantry
     {
-        $pantry = Pantry::with(['items.product'])->findOrFail($id);
+        $pantry = Pantry::with(['items.product', 'items.user'])->findOrFail($id);
 
         if (!$pantry->hasUserPermission($user, 'read')) {
             abort(403, 'Access denied');
@@ -107,21 +107,25 @@ class PantryService
         if ($existing) {
             $existing->quantity += $data['quantity'];
             $existing->update(array_intersect_key($data, array_flip(['unit', 'expiry_date', 'location', 'notes', 'minimum_quantity'])));
-            $existing->quantity = $existing->quantity; // already incremented
+            $existing->quantity = $existing->quantity;
+            if (!$existing->user_id) {
+                $existing->user_id = $user->id;
+            }
             $existing->save();
-            return $existing->load('product');
+            return $existing->load('product', 'user');
         }
 
         return PantryItem::create([
             'pantry_id'        => $pantryId,
             'product_id'       => $productId,
+            'user_id'          => $user->id,
             'quantity'         => $data['quantity'],
             'unit'             => $data['unit'] ?? null,
             'expiry_date'      => $data['expiry_date'] ?? null,
             'location'         => $data['location'] ?? null,
             'notes'            => $data['notes'] ?? null,
             'minimum_quantity' => $data['minimum_quantity'] ?? 1,
-        ])->load('product');
+        ])->load('product', 'user');
     }
 
     public function updateItem(int $pantryId, int $itemId, array $data, User $user): PantryItem
@@ -214,6 +218,10 @@ class PantryService
                 'barcode'   => $product->barcode,
                 'ean'       => $product->barcode,
                 'image_url' => $product->image_url ?: null,
+            ] : null,
+            'added_by'    => $item->user ? [
+                'id'   => $item->user->id,
+                'name' => $item->user->name,
             ] : null,
             'created_at' => $item->created_at,
         ];
