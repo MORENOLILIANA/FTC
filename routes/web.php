@@ -14,10 +14,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return response()->json([
-        'app' => 'NutriCasa API',
-        'version' => '1.0.0',
-        'status' => 'running',
-        'docs' => '/api/v1'
-    ]);
+    return view('dashboard');
 });

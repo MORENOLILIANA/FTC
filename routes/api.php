@@ -61,6 +61,7 @@ Route::prefix('v1')->group(function () {
             Route::put('/{id}/items/{itemId}',     [PantryController::class, 'updateItem']);
             Route::delete('/{id}/items/{itemId}',  [PantryController::class, 'deleteItem']);
             Route::get('/{id}/notifications',      [PantryController::class, 'notifications']);
+            Route::get('/{id}/members',            [PantryController::class, 'members']);
             Route::post('/{id}/share',             [PantryController::class, 'share']);
             Route::post('/shared/{token}',         [PantryController::class, 'joinShared']);
         });

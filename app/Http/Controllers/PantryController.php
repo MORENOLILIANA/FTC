@@ -188,6 +188,47 @@ class PantryController extends Controller
         }
     }
 
+    public function members(Request $request, int $id): JsonResponse
+    {
+        try {
+            $pantry = \App\Models\Pantry::findOrFail($id);
+
+            if (!$pantry->hasUserPermission($request->user(), 'read')) {
+                return response()->json(['success' => false, 'message' => 'Access denied'], 403);
+            }
+
+            $owner = $pantry->user()->select('id', 'name', 'email')->first();
+
+            $members = collect([
+                [
+                    'id'         => $owner->id,
+                    'name'       => $owner->name,
+                    'email'      => $owner->email,
+                    'role'       => 'owner',
+                    'joined_at'  => $pantry->created_at,
+                ],
+            ]);
+
+            $shared = $pantry->sharedUsers()
+                ->select('users.id', 'users.name', 'users.email')
+                ->get()
+                ->map(fn($u) => [
+                    'id'        => $u->id,
+                    'name'      => $u->name,
+                    'email'     => $u->email,
+                    'role'      => $u->pivot->permission ?? 'member',
+                    'joined_at' => $u->pivot->created_at,
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'data'    => $members->concat($shared)->values(),
+            ]);
+        } catch (\Exception $e) {
+            return $this->error($e);
+        }
+    }
+
     // ── shared access (public routes) ──────────────────────────────────────
 
     public function share(Request $request, int $id): JsonResponse
