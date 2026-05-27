@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('dashboard');
 });
+
+Route::get('/pantry/shared/{token}', function ($token) {
+    return redirect('nutricasa://pantry/shared/' . $token);
+});
