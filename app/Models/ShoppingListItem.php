@@ -24,7 +24,7 @@ class ShoppingListItem extends Model
 
     protected $casts = [
         'estimated_price' => 'decimal:2',
-        'quantity' => 'decimal:2',
+        'quantity' => 'float',
         'is_purchased' => 'boolean',
         'purchased_at' => 'datetime',
         'created_at' => 'datetime',

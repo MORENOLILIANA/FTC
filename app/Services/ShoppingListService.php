@@ -200,6 +200,8 @@ class ShoppingListService
     public function formatItem(ShoppingListItem $item): array
     {
         $product = $item->product;
+        $category = $product?->category ?? 'Otros';
+
         return [
             'id'           => $item->id,
             'product_id'   => $item->product_id,
@@ -207,15 +209,17 @@ class ShoppingListService
             'quantity'     => $item->quantity,
             'unit'         => $item->unit,
             'notes'        => $item->notes,
+            'category'     => $category,
             'purchased'    => $item->is_purchased,
             'purchased_at' => $item->purchased_at,
             'product'      => $product ? [
-                'id'       => $product->id,
-                'name'     => $product->name,
-                'brand'    => $product->brand,
-                'category' => $product->category,
-                'barcode'  => $product->barcode,
-                'ean'      => $product->barcode,
+                'id'        => $product->id,
+                'name'      => $product->name,
+                'brand'     => $product->brand,
+                'category'  => $product->category,
+                'barcode'   => $product->barcode,
+                'ean'       => $product->barcode,
+                'image_url' => $product->image_url ?: null,
             ] : null,
             'created_at'   => $item->created_at,
         ];
