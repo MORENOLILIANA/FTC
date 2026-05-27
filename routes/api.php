@@ -36,7 +36,8 @@ Route::prefix('v1')->group(function () {
         });
 
         // Notifications (global — all user pantries)
-        Route::get('notifications', [NotificationController::class, 'index']);
+        Route::get('notifications',                      [NotificationController::class, 'index']);
+        Route::post('notifications/register-token',      [NotificationController::class, 'registerToken']);
 
         // Products
         Route::prefix('products')->group(function () {
@@ -93,7 +94,7 @@ Route::prefix('v1')->group(function () {
 
 Route::get('/test', fn() => response()->json([
     'success'   => true,
-    'message'   => 'NutriCasa API is working!',
+    'message'   => 'La Despensa API is working!',
     'version'   => '1.0.0',
     'timestamp' => now()->toISOString(),
 ]));

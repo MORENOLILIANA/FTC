@@ -1,7 +1,7 @@
 <x-mail::message>
 # Restablecer tu contraseña
 
-Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en **NutriCasa**.
+Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en **La Despensa**.
 
 Pulsa el botón para crear una nueva contraseña. El enlace expira en **60 minutos**.
 

@@ -16,7 +16,7 @@ class ResetPasswordMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Restablecer contraseña — NutriCasa');
+        return new Envelope(subject: 'Restablecer contraseña — La Despensa');
     }
 
     public function content(): Content

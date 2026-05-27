@@ -200,6 +200,7 @@ docker-compose exec app php artisan migrate
 docker-compose logs -f app
 ```
 
+
 ### Comandos útiles de Laravel
 
 ```bash

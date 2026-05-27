@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.nutricasa.app",
+    "sha256_cert_fingerprints": ["8A:92:6F:DD:5B:41:69:83:CE:75:D4:9C:20:71:AD:7B:F5:68:64:E9:59:9A:6D:D6:1E:0B:4D:2E:5C:08:8C:05"]
+  }
+}]

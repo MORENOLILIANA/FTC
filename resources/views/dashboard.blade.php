@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriCasa API</title>
+    <title>La Despensa API</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
@@ -21,7 +21,7 @@
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-lg">🥗</div>
                 <div>
-                    <span class="font-bold text-lg">NutriCasa</span>
+                    <span class="font-bold text-lg">La Despensa</span>
                     <span class="ml-2 text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">v1.0.0</span>
                 </div>
             </div>
@@ -170,7 +170,7 @@
     </main>
 
     <footer class="border-t border-gray-800 mt-16 py-6 text-center text-xs text-gray-600">
-        NutriCasa API · Laravel {{ app()->version() }} · PHP {{ PHP_VERSION }}
+        La Despensa API · Laravel {{ app()->version() }} · PHP {{ PHP_VERSION }}
         · Servidor {{ now()->format('d/m/Y H:i') }}
     </footer>
 
