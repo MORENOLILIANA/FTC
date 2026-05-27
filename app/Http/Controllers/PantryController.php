@@ -144,6 +144,9 @@ class PantryController extends Controller
             'location'         => 'nullable|string|max:100',
             'notes'            => 'nullable|string',
             'minimum_quantity' => 'nullable|numeric|min:0',
+            'product_name'     => 'nullable|string|max:255',
+            'product_brand'    => 'nullable|string|max:255',
+            'product_category' => 'nullable|string|max:255',
         ]);
 
         try {

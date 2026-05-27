@@ -141,6 +141,14 @@ class PantryService
             'quantity', 'unit', 'expiry_date', 'location', 'notes', 'minimum_quantity',
         ])));
 
+        if ($item->product && !empty($data['product_name'])) {
+            $item->product->update(array_filter([
+                'name'     => $data['product_name'],
+                'brand'    => $data['product_brand'] ?? null,
+                'category' => $data['product_category'] ?? null,
+            ], fn($v) => $v !== null));
+        }
+
         return $item->load('product');
     }
 
