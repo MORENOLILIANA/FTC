@@ -98,6 +98,11 @@ class PantryService
             $productId = $product->id;
         }
 
+        // Actualizar datos nutricionales e imagen en el producto si se enviaron
+        if ($productId && (!empty($data['nutritional_info']) || !empty($data['product_image_url']))) {
+            $this->applyNutritionalData(Product::find($productId), $data);
+        }
+
         if (!$productId) {
             abort(422, 'Se requiere product_id, barcode o product_name');
         }
@@ -141,12 +146,18 @@ class PantryService
             'quantity', 'unit', 'expiry_date', 'location', 'notes', 'minimum_quantity',
         ])));
 
-        if ($item->product && !empty($data['product_name'])) {
-            $item->product->update(array_filter([
-                'name'     => $data['product_name'],
+        if ($item->product) {
+            $productUpdate = array_filter([
+                'name'     => $data['product_name'] ?? null,
                 'brand'    => $data['product_brand'] ?? null,
                 'category' => $data['product_category'] ?? null,
-            ], fn($v) => $v !== null));
+            ], fn($v) => $v !== null);
+
+            if (!empty($productUpdate)) {
+                $item->product->update($productUpdate);
+            }
+
+            $this->applyNutritionalData($item->product, $data);
         }
 
         return $item->load('product');
@@ -233,5 +244,38 @@ class PantryService
             ] : null,
             'created_at' => $item->created_at,
         ];
+    }
+
+    private function applyNutritionalData(?Product $product, array $data): void
+    {
+        if (!$product) return;
+
+        $update = [];
+        $info   = $data['nutritional_info'] ?? [];
+
+        $map = [
+            'calories'      => 'calories',
+            'proteins'      => 'proteins',
+            'carbs'         => 'carbohydrates',
+            'fats'          => 'fats',
+            'fiber'         => 'fiber',
+            'sugars'        => 'sugar',
+            'salt'          => 'salt',
+            'nutriscore'    => 'nutriscore',
+        ];
+
+        foreach ($map as $fromKey => $toColumn) {
+            if (isset($info[$fromKey])) {
+                $update[$toColumn] = $info[$fromKey];
+            }
+        }
+
+        if (!empty($data['product_image_url']) && empty($product->image_url)) {
+            $update['image_url'] = $data['product_image_url'];
+        }
+
+        if (!empty($update)) {
+            $product->update($update);
+        }
     }
 }

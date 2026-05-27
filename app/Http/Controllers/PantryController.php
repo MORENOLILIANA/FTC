@@ -109,17 +109,27 @@ class PantryController extends Controller
     public function addItem(Request $request, int $pantryId): JsonResponse
     {
         $request->validate([
-            'product_id'       => 'nullable|exists:products,id',
-            'barcode'          => 'nullable|string|max:14',
-            'product_name'     => 'nullable|string|max:255',
-            'product_brand'    => 'nullable|string|max:255',
-            'product_category' => 'nullable|string|max:255',
-            'quantity'         => 'required|numeric|min:0.01',
-            'unit'             => 'nullable|string|max:50',
-            'expiry_date'      => 'nullable|date',
-            'location'         => 'nullable|string|max:100',
-            'notes'            => 'nullable|string',
-            'minimum_quantity' => 'nullable|numeric|min:0',
+            'product_id'                    => 'nullable|exists:products,id',
+            'barcode'                       => 'nullable|string|max:14',
+            'product_name'                  => 'nullable|string|max:255',
+            'product_brand'                 => 'nullable|string|max:255',
+            'product_category'              => 'nullable|string|max:255',
+            'quantity'                      => 'required|numeric|min:0.01',
+            'unit'                          => 'nullable|string|max:50',
+            'expiry_date'                   => 'nullable|date',
+            'location'                      => 'nullable|string|max:100',
+            'notes'                         => 'nullable|string',
+            'minimum_quantity'              => 'nullable|numeric|min:0',
+            'nutritional_info'              => 'nullable|array',
+            'nutritional_info.calories'     => 'nullable|numeric|min:0',
+            'nutritional_info.proteins'     => 'nullable|numeric|min:0',
+            'nutritional_info.carbs'        => 'nullable|numeric|min:0',
+            'nutritional_info.fats'         => 'nullable|numeric|min:0',
+            'nutritional_info.fiber'        => 'nullable|numeric|min:0',
+            'nutritional_info.sugars'       => 'nullable|numeric|min:0',
+            'nutritional_info.salt'         => 'nullable|numeric|min:0',
+            'nutritional_info.nutriscore'   => 'nullable|string|max:1',
+            'product_image_url'             => 'nullable|url',
         ]);
 
         try {
@@ -138,15 +148,25 @@ class PantryController extends Controller
     public function updateItem(Request $request, int $pantryId, int $itemId): JsonResponse
     {
         $request->validate([
-            'quantity'         => 'required|numeric|min:0.01',
-            'unit'             => 'nullable|string|max:50',
-            'expiry_date'      => 'nullable|date',
-            'location'         => 'nullable|string|max:100',
-            'notes'            => 'nullable|string',
-            'minimum_quantity' => 'nullable|numeric|min:0',
-            'product_name'     => 'nullable|string|max:255',
-            'product_brand'    => 'nullable|string|max:255',
-            'product_category' => 'nullable|string|max:255',
+            'quantity'                      => 'required|numeric|min:0.01',
+            'unit'                          => 'nullable|string|max:50',
+            'expiry_date'                   => 'nullable|date',
+            'location'                      => 'nullable|string|max:100',
+            'notes'                         => 'nullable|string',
+            'minimum_quantity'              => 'nullable|numeric|min:0',
+            'product_name'                  => 'nullable|string|max:255',
+            'product_brand'                 => 'nullable|string|max:255',
+            'product_category'              => 'nullable|string|max:255',
+            'nutritional_info'              => 'nullable|array',
+            'nutritional_info.calories'     => 'nullable|numeric|min:0',
+            'nutritional_info.proteins'     => 'nullable|numeric|min:0',
+            'nutritional_info.carbs'        => 'nullable|numeric|min:0',
+            'nutritional_info.fats'         => 'nullable|numeric|min:0',
+            'nutritional_info.fiber'        => 'nullable|numeric|min:0',
+            'nutritional_info.sugars'       => 'nullable|numeric|min:0',
+            'nutritional_info.salt'         => 'nullable|numeric|min:0',
+            'nutritional_info.nutriscore'   => 'nullable|string|max:1',
+            'product_image_url'             => 'nullable|url',
         ]);
 
         try {
