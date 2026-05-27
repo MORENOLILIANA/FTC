@@ -117,7 +117,7 @@ class OpenFoodFactsService
     {
         $product->name = $data['product_name'] ?? $data['product_name_es'] ?? $product->name;
         $product->brand = $data['brands'] ?? $product->brand;
-        $product->category = $data['categories'] ?? $product->category;
+        $product->category = Product::normalizeCategory($data['categories'] ?? '') ?: $product->category;
         
         // Actualizar información nutricional
         $nutriments = $data['nutriments'] ?? [];

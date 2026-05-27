@@ -122,6 +122,34 @@ class Product extends Model
             ->orWhere('brand', 'like', "%{$query}%");
     }
 
+    public static function normalizeCategory(string $raw): string
+    {
+        $text = strtolower($raw);
+
+        $map = [
+            'Lácteos'           => ['dairy', 'milk', 'cheese', 'yogurt', 'butter', 'cream', 'lacteo', 'leche', 'queso', 'yogur', 'mantequilla', 'nata'],
+            'Carnes y pescados' => ['meat', 'fish', 'seafood', 'poultry', 'beef', 'pork', 'chicken', 'carne', 'pescado', 'marisco', 'pollo', 'cerdo', 'ternera'],
+            'Frutas y verduras' => ['fruit', 'vegetable', 'produce', 'fruta', 'verdura', 'hortaliza', 'legumbre'],
+            'Cereales y pasta'  => ['cereal', 'pasta', 'bread', 'flour', 'rice', 'grain', 'pan', 'harina', 'arroz', 'trigo', 'avena'],
+            'Bebidas'           => ['beverage', 'drink', 'juice', 'water', 'soda', 'coffee', 'tea', 'bebida', 'zumo', 'agua', 'refresco', 'cafe'],
+            'Conservas'         => ['canned', 'conserve', 'preserve', 'tinned', 'conserva', 'lata', 'enlatado'],
+            'Congelados'        => ['frozen', 'congelado'],
+            'Frutos secos'      => ['nut', 'seed', 'dried fruit', 'fruto seco', 'almendra', 'nuez', 'anacardo', 'semilla'],
+            'Limpieza'          => ['cleaning', 'detergent', 'limpieza', 'detergente', 'soap'],
+            'Higiene'           => ['hygiene', 'cosmetic', 'personal care', 'higiene', 'shampoo', 'toothpaste'],
+        ];
+
+        foreach ($map as $category => $keywords) {
+            foreach ($keywords as $keyword) {
+                if (str_contains($text, $keyword)) {
+                    return $category;
+                }
+            }
+        }
+
+        return 'Otros';
+    }
+
     /**
      * Crear producto desde datos de UPC Item DB (sin info nutricional)
      */
@@ -131,7 +159,7 @@ class Product extends Model
         $product->barcode    = $data['code'];
         $product->name       = $data['product_name'] ?? 'Producto sin nombre';
         $product->brand      = $data['brands'] ?? null;
-        $product->category   = $data['category'] ?? null;
+        $product->category   = static::normalizeCategory($data['category'] ?? '');
         $product->image_url  = $data['image_front_url'] ?? null;
         return $product;
     }
@@ -146,7 +174,7 @@ class Product extends Model
         $product->barcode = $data['code'] ?? null;
         $product->name = $data['product_name'] ?? $data['product_name_es'] ?? 'Producto sin nombre';
         $product->brand = $data['brands'] ?? null;
-        $product->category = $data['categories'] ?? null;
+        $product->category = static::normalizeCategory($data['categories'] ?? '');
         
         // Información nutricional
         $nutriments = $data['nutriments'] ?? [];
