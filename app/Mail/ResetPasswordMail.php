@@ -21,7 +21,7 @@ class ResetPasswordMail extends Mailable
 
     public function content(): Content
     {
-        $deepLink = 'nutricasa://reset-password?token=' . urlencode($this->token) . '&email=' . urlencode($this->email);
+        $deepLink = 'ladespensa://reset-password?token=' . urlencode($this->token) . '&email=' . urlencode($this->email);
 
         return new Content(markdown: 'emails.reset-password', with: [
             'token'    => $this->token,

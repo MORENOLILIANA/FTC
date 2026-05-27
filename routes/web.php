@@ -18,12 +18,12 @@ Route::get('/', function () {
 });
 
 Route::get('/pantry/shared/{token}', function ($token) {
-    return redirect('nutricasa://pantry/shared/' . $token);
+    return redirect('ladespensa://pantry/shared/' . $token);
 });
 
 Route::get('/join/{token}', function ($token) {
     $safeToken = e($token);
-    $deepLink  = 'nutricasa://pantry/shared/' . $safeToken;
+    $deepLink  = 'ladespensa://pantry/shared/' . $safeToken;
 
     return response(<<<HTML
     <!DOCTYPE html>

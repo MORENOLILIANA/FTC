@@ -1,12 +1,12 @@
-# NutriCasa — Backend API
+# La Despensa — Backend API
 
-API REST desarrollada en **Laravel 10** que da soporte a la aplicación móvil NutriCasa. Gestiona la autenticación de usuarios, despensas, listas de la compra y un catálogo de productos con información nutricional.
+API REST desarrollada en **Laravel 10** que da soporte a la aplicación móvil La Despensa. Gestiona la autenticación de usuarios, despensas, listas de la compra y un catálogo de productos con información nutricional.
 
 ---
 
 ## Descripción del proyecto
 
-NutriCasa es una aplicación para gestionar el inventario del hogar. Desde el móvil el usuario puede:
+La Despensa es una aplicación para gestionar el inventario del hogar. Desde el móvil el usuario puede:
 
 - Registrar los productos que tiene en casa (despensa)
 - Crear listas de la compra y marcar artículos como comprados
@@ -54,6 +54,8 @@ app/
 │   ├── ProductService.php
 │   ├── ShoppingListService.php
 │   ├── UserService.php
+│   ├── NotificationService.php
+│   ├── ExpoPushService.php
 │   ├── OpenFoodFactsService.php
 │   └── UpcItemDbService.php
 ├── Models/                # Modelos Eloquent
@@ -62,7 +64,8 @@ app/
 │   ├── Pantry.php
 │   ├── PantryItem.php
 │   ├── ShoppingList.php
-│   └── ShoppingListItem.php
+│   ├── ShoppingListItem.php
+│   └── DeviceToken.php
 └── Mail/
     └── ResetPasswordMail.php
 ```
@@ -146,11 +149,12 @@ Base URL: `https://nutricasa.duckdns.org/api/v1`
 | POST | `/shopping-lists/{id}/share` | Generar enlace de invitación |
 | POST | `/shopping-lists/shared/{token}` | Unirse a una lista compartida |
 
-### Notificaciones globales
+### Notificaciones
 
 | Método | Ruta | Descripción |
 |---|---|---|
 | GET | `/notifications` | Todas las alertas del usuario (caducados, por caducar, stock bajo) |
+| POST | `/notifications/register-token` | Registrar token de dispositivo para push notifications |
 
 ---
 
@@ -200,7 +204,6 @@ docker-compose exec app php artisan migrate
 docker-compose logs -f app
 ```
 
-
 ### Comandos útiles de Laravel
 
 ```bash
@@ -212,6 +215,15 @@ docker-compose exec app php artisan route:clear
 # Regenerar caché (producción)
 docker-compose exec app php artisan config:cache
 docker-compose exec app php artisan route:cache
+
+# Sincronizar datos nutricionales desde Open Food Facts
+docker-compose exec app php artisan products:sync-nutritional
+
+# Rellenar nutriscore en todos los productos
+docker-compose exec app php artisan products:fill-nutriscore
+
+# Enviar notificaciones push manualmente
+docker-compose exec app php artisan notifications:send-expiry
 ```
 
 ---
@@ -232,17 +244,18 @@ Las migraciones están en `database/migrations/` y crean las siguientes tablas:
 | `shopping_list_users` | Relación usuarios ↔ listas compartidas |
 | `personal_access_tokens` | Tokens de autenticación Sanctum |
 | `password_reset_tokens` | Tokens para recuperar contraseña |
+| `device_tokens` | Tokens de dispositivo para push notifications |
 
 ---
 
 ## Deep links
 
-La app móvil usa el esquema `nutricasa://`. El backend incluye una ruta web que redirige los enlaces compartidos por HTTPS al esquema de la app:
+La app móvil usa el esquema `ladespensa://`. El backend incluye una ruta web que redirige los enlaces compartidos por HTTPS al esquema de la app:
 
 ```
 https://nutricasa.duckdns.org/pantry/shared/{token}
 → redirige a →
-nutricasa://pantry/shared/{token}
+ladespensa://pantry/shared/{token}
 ```
 
 Esto permite que los enlaces funcionen tanto desde el navegador como desde la app.
