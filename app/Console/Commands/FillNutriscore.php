@@ -126,9 +126,12 @@ class FillNutriscore extends Command
             + $this->sugarPoints($sug)
             + $this->sodiumPoints($salt * 400); // sal → sodio (mg)
 
-        // Puntos positivos (sin frutas/verduras porque no tenemos ese dato)
+        // Puntos positivos
+        // Si es fruta/verdura/legumbre asumimos 100% → 5 pts (máximo)
+        $isFruitVeg = in_array($product->category, ['Frutas y verduras', 'Legumbres']);
         $p  = $this->fiberPoints($fib)
-            + $this->proteinPoints($prot);
+            + $this->proteinPoints($prot)
+            + ($isFruitVeg ? 5 : 0);
 
         $score = $n - $p;
 
