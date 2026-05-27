@@ -286,6 +286,85 @@ class PantryService
 
         if (!empty($update)) {
             $product->update($update);
+            $product->refresh();
         }
+
+        // Calcular nutriscore automáticamente si hay datos pero no se envió uno explícito
+        if (empty($info['nutriscore']) && empty($product->nutriscore) && $product->calories_per_100g !== null) {
+            $ns = $this->calculateNutriscore($product);
+            if ($ns) $product->update(['nutriscore' => $ns]);
+        }
+    }
+
+    private function calculateNutriscore(Product $product): ?string
+    {
+        $cal  = (float) $product->calories_per_100g;
+        $sat  = (float) $product->saturated_fat_per_100g;
+        $sug  = (float) $product->sugar_per_100g;
+        $salt = (float) $product->salt_per_100g;
+        $fib  = (float) $product->fiber_per_100g;
+        $prot = (float) $product->proteins_per_100g;
+
+        if ($cal === 0.0 && $sat === 0.0 && $sug === 0.0) return null;
+
+        $n = $this->nsEnergyPts($cal) + $this->nsSatFatPts($sat)
+           + $this->nsSugarPts($sug) + $this->nsSodiumPts($salt * 400);
+
+        $isFruitVeg = in_array($product->category, ['Frutas y verduras', 'Legumbres']);
+        $p = $this->nsFiberPts($fib) + $this->nsProteinPts($prot) + ($isFruitVeg ? 5 : 0);
+
+        return match (true) {
+            ($n - $p) <= -1 => 'A',
+            ($n - $p) <= 2  => 'B',
+            ($n - $p) <= 10 => 'C',
+            ($n - $p) <= 18 => 'D',
+            default         => 'E',
+        };
+    }
+
+    private function nsEnergyPts(float $v): int
+    {
+        return match(true) {
+            $v<=335=>0,$v<=670=>1,$v<=1005=>2,$v<=1340=>3,$v<=1675=>4,
+            $v<=2010=>5,$v<=2345=>6,$v<=2680=>7,$v<=3015=>8,$v<=3350=>9,default=>10
+        };
+    }
+
+    private function nsSatFatPts(float $v): int
+    {
+        return match(true) {
+            $v<=1=>0,$v<=2=>1,$v<=3=>2,$v<=4=>3,$v<=5=>4,
+            $v<=6=>5,$v<=7=>6,$v<=8=>7,$v<=9=>8,$v<=10=>9,default=>10
+        };
+    }
+
+    private function nsSugarPts(float $v): int
+    {
+        return match(true) {
+            $v<=4.5=>0,$v<=9=>1,$v<=13.5=>2,$v<=18=>3,$v<=22.5=>4,
+            $v<=27=>5,$v<=31=>6,$v<=36=>7,$v<=40=>8,$v<=45=>9,default=>10
+        };
+    }
+
+    private function nsSodiumPts(float $v): int
+    {
+        return match(true) {
+            $v<=90=>0,$v<=180=>1,$v<=270=>2,$v<=360=>3,$v<=450=>4,
+            $v<=540=>5,$v<=630=>6,$v<=720=>7,$v<=810=>8,$v<=900=>9,default=>10
+        };
+    }
+
+    private function nsFiberPts(float $v): int
+    {
+        return match(true) {
+            $v<=0.9=>0,$v<=1.9=>1,$v<=2.8=>2,$v<=3.7=>3,$v<=4.7=>4,default=>5
+        };
+    }
+
+    private function nsProteinPts(float $v): int
+    {
+        return match(true) {
+            $v<=1.6=>0,$v<=3.2=>1,$v<=4.8=>2,$v<=6.4=>3,$v<=8.0=>4,default=>5
+        };
     }
 }
